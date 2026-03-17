@@ -1,0 +1,66 @@
+# Example TCP target poses for the Piper arm.
+#
+# Coordinate frame: base_link
+#   Origin  – centre of the arm mounting plate
+#   X       – forward, into the workspace
+#   Y       – left (right-hand system)
+#   Z       – up
+#
+# TCP (link6) orientation convention:
+#   The gripper's approach direction is along link6's Z-axis.
+#   RPY is expressed as intrinsic XYZ (roll → pitch → yaw).
+#
+#   Top-down approach  : pitch = π/2  ≈ 1.5708  (gripper pointing straight down)
+#   Horizontal forward : pitch = 0.0             (gripper pointing forward)
+#
+# Approximate reachable workspace:
+#   X  0.10 – 0.38 m
+#   Y –0.25 – 0.25 m
+#   Z –0.05 – 0.38 m
+#
+# Usage – one-shot via launch:
+#   ros2 launch agx_arm_motion move_to_pose.launch.py x:=0.25 y:=0.0 z:=0.30 pitch:=1.5708
+#
+# Usage – topic (pose_goal_server must be running):
+#   ros2 topic pub --once /piper/target_pose geometry_msgs/msg/PoseStamped \
+#     "{header: {frame_id: base_link},
+#       pose: {position: {x: 0.25, y: 0.0, z: 0.30},
+#              orientation: {x: 0.0, y: 0.707, z: 0.0, w: 0.707}}}"
+
+poses:
+
+  # Safe mid-air position; good starting point for any trial.
+  ready:
+    frame_id: base_link
+    position:        [0.20, 0.0,  0.30]
+    orientation_rpy: [0.0,  1.5708, 0.0]   # top-down
+
+  # Directly above the bench centre at pick height.
+  bench_center_above:
+    frame_id: base_link
+    position:        [0.25, 0.0,  0.20]
+    orientation_rpy: [0.0,  1.5708, 0.0]   # top-down
+
+  # Low pick position at the bench centre.
+  bench_center_pick:
+    frame_id: base_link
+    position:        [0.25, 0.0,  0.08]
+    orientation_rpy: [0.0,  1.5708, 0.0]   # top-down
+
+  # Horizontal reach forward – useful for pushing/placing objects.
+  front_horizontal:
+    frame_id: base_link
+    position:        [0.30, 0.0,  0.15]
+    orientation_rpy: [0.0,  0.0,  0.0]     # horizontal
+
+  # Reach to the left side of the bench.
+  left_side:
+    frame_id: base_link
+    position:        [0.20, 0.18, 0.15]
+    orientation_rpy: [0.0,  1.5708, 0.0]   # top-down
+
+  # Reach to the right side of the bench.
+  right_side:
+    frame_id: base_link
+    position:        [0.20, -0.18, 0.15]
+    orientation_rpy: [0.0,  1.5708, 0.0]   # top-down
