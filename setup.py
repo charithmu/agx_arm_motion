@@ -25,14 +25,15 @@ setup(
     ],
     install_requires=["setuptools"],
     zip_safe=True,
-    maintainer="Agilex Robotics",
-    maintainer_email="maintainer@agilexrobotics.com",
-    description="Move the Piper arm TCP to target poses using MoveIt2.",
+    maintainer="Charith Munasinghe",
+    maintainer_email="mung@zhaw.ch",
+    description="MoveIt2 convenience layer for Piper Studio — pose executors and goal server.",
     license="Apache-2.0",
     entry_points={
         "console_scripts": [
             "move_to_pose = agx_arm_motion.move_to_pose:main",
             "pose_goal_server = agx_arm_motion.pose_goal_server:main",
+            "move_to_named_pose = agx_arm_motion.move_to_named_pose:main",
         ],
     },
 )

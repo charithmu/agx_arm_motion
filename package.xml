@@ -4,10 +4,11 @@
   <name>agx_arm_motion</name>
   <version>0.1.0</version>
   <description>
-    Move the Piper arm TCP to target poses using MoveIt2.
-    Provides a one-shot pose executor and a persistent goal server.
+    MoveIt2 convenience layer for Piper Studio.
+    Provides one-shot pose executors (Cartesian and named), a persistent
+    pose-goal server, and a Python facade for higher-level packages.
   </description>
-  <maintainer email="maintainer@agilexrobotics.com">Agilex Robotics</maintainer>
+  <maintainer email="mung@zhaw.ch">Charith Munasinghe</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
@@ -18,7 +19,9 @@
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>tf2_geometry_msgs</exec_depend>
   <exec_depend>moveit_ros_planning_interface</exec_depend>
-  <exec_depend>piper_with_gripper_moveit</exec_depend>
+  <exec_depend>agx_arm_moveit</exec_depend>
+  <exec_depend>agx_arm_gzsim</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

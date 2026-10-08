@@ -1,15 +1,22 @@
 """
 Start the persistent Piper pose goal server.
 
+Arguments
+---------
+  profile  Backend profile: sim (default) or real
+
 The server listens on /piper/target_pose (geometry_msgs/PoseStamped) and
 executes a MoveIt trajectory for each received goal.  Poses can be in any
-TF-known frame; the server transforms them to base_link automatically.
+TF-known frame; the server transforms to base_link automatically.
 
 Usage
 -----
   ros2 launch agx_arm_motion pose_goal_server.launch.py
 
-  # Then send goals from any node or the CLI:
+  # Real hardware:
+  ros2 launch agx_arm_motion pose_goal_server.launch.py profile:=real
+
+  # Send a goal:
   ros2 topic pub --once /piper/target_pose geometry_msgs/msg/PoseStamped \\
     "{header: {frame_id: base_link},
       pose: {position: {x: 0.3, y: 0.0, z: 0.25},
@@ -19,47 +26,38 @@ Usage
   ros2 topic echo /piper/motion_status
 """
 
-import os
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from moveit_configs_utils import MoveItConfigsBuilder
+
+from agx_arm_motion.launch_utils import build_moveit_config, use_sim_time
+
+
+def launch_setup(context, *args, **kwargs):
+    profile = LaunchConfiguration("profile").perform(context)
+    moveit_config = build_moveit_config(profile)
+
+    node = Node(
+        package="agx_arm_motion",
+        executable="pose_goal_server",
+        name="moveit_py",
+        parameters=[
+            moveit_config.to_dict(),
+            {"use_sim_time": use_sim_time(profile)},
+        ],
+        output="screen",
+    )
+    return [node]
 
 
 def generate_launch_description() -> LaunchDescription:
-    pkg_gzsim = get_package_share_directory("agx_arm_gzsim")
-
-    moveit_config = (
-        MoveItConfigsBuilder("piper", package_name="piper_with_gripper_moveit")
-        .robot_description(
-            file_path=os.path.join(pkg_gzsim, "urdf", "piper_with_gripper_gzsim.urdf.xacro"),
-            mappings={
-                "initial_positions_file": os.path.join(
-                    pkg_gzsim, "config", "initial_positions.yaml"
-                )
-            },
-        )
-        .trajectory_execution(
-            file_path=os.path.join(pkg_gzsim, "config", "moveit_controllers.yaml")
-        )
-        .moveit_cpp(
-            file_path=os.path.join(
-                get_package_share_directory("agx_arm_motion"), "config", "moveit_cpp.yaml"
-            )
-        )
-        .to_moveit_configs()
-    )
-
     return LaunchDescription([
-        Node(
-            package="agx_arm_motion",
-            executable="pose_goal_server",
-            name="moveit_py",
-            parameters=[
-                moveit_config.to_dict(),
-                {"use_sim_time": True},
-            ],
-            output="screen",
+        DeclareLaunchArgument(
+            "profile",
+            default_value="sim",
+            choices=["sim", "real"],
+            description="Backend profile: sim (Gazebo) or real (hardware)",
         ),
+        OpaqueFunction(function=launch_setup),
     ])
